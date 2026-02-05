@@ -4,22 +4,20 @@ class Roulette {
         this.strip = document.getElementById('roulette-strip');
         this.upgrades = upgrades;
         this.isSpinning = false;
-        this.itemWidth = 100; // CSSの.roulette-itemの幅と合わせる
+        this.itemWidth = 120; // アイテム1つの幅
     }
 
     start() {
         if (this.isSpinning) return;
         this.isSpinning = true;
 
-        // 1. UIを表示し、中身をリセット
         this.container.classList.add('show');
         this.strip.style.transition = "none";
         this.strip.style.left = "0px";
         this.strip.innerHTML = "";
 
-        // 2. 演出用にランダムなアイテムを大量に並べる
         const displayItems = [];
-        const totalItems = 40;
+        const totalItems = 60; // 長めに回す
         for (let i = 0; i < totalItems; i++) {
             displayItems.push(this.upgrades[Math.floor(Math.random() * this.upgrades.length)]);
         }
@@ -27,31 +25,40 @@ class Roulette {
         displayItems.forEach(item => {
             const div = document.createElement('div');
             div.className = 'roulette-item';
-            div.innerText = item.label;
+            div.innerHTML = `<span style="font-size:10px; opacity:0.8;">EVOLVE</span>${item.label}`;
             this.strip.appendChild(div);
         });
 
-        // 3. 停止位置を計算（25番目のアイテムを中央にする）
-        const resultIndex = 25;
-        const containerWidth = 300; // CSSのwidth
-        const stopPos = -(resultIndex * this.itemWidth) + (containerWidth / 2 - this.itemWidth / 2);
+        // --- 修正ポイント：中央に合わせる計算 ---
+        // 50番目のアイテムを「当たり」とする
+        const resultIndex = 50; 
+        
+        // コンテナの真ん中の位置を取得
+        const containerWidth = this.container.offsetWidth;
+        const centerOfContainer = containerWidth / 2;
 
-        // 4. 回転開始
+        // アイテムの左端からその中心までの距離は itemWidth / 2
+        // 「当たり」アイテムの左端がくるべき位置を計算
+        const stopPos = -(resultIndex * this.itemWidth) + (centerOfContainer - this.itemWidth / 2);
+
         setTimeout(() => {
-            this.strip.style.transition = "left 3s cubic-bezier(0.1, 0, 0.1, 1)";
+            // カジノらしい、滑らかな減速（4秒かけて回転）
+            this.strip.style.transition = "left 4s cubic-bezier(0.15, 0, 0.1, 1)";
             this.strip.style.left = stopPos + "px";
-        }, 50);
+        }, 100);
 
-        // 5. 停止後の処理
         setTimeout(() => {
             const result = displayItems[resultIndex];
-            result.action(); // 強化実行
+            result.action(); 
 
-            // 3秒後に隠す
+            // 当たったアイテムを強調
+            const finalItem = this.strip.children[resultIndex];
+            finalItem.classList.add('winner');
+
             setTimeout(() => {
                 this.container.classList.remove('show');
                 this.isSpinning = false;
             }, 3000);
-        }, 3500);
+        }, 4500); // アニメーション4s + 余裕0.5s
     }
 }
