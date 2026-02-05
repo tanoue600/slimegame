@@ -7,7 +7,7 @@ class Roulette {
         this.itemWidth = 120; // アイテム1つの幅
     }
 
-    start() {
+start() {
         if (this.isSpinning) return;
         this.isSpinning = true;
 
@@ -17,7 +17,7 @@ class Roulette {
         this.strip.innerHTML = "";
 
         const displayItems = [];
-        const totalItems = 60; // 長めに回す
+        const totalItems = 60; 
         for (let i = 0; i < totalItems; i++) {
             displayItems.push(this.upgrades[Math.floor(Math.random() * this.upgrades.length)]);
         }
@@ -29,29 +29,31 @@ class Roulette {
             this.strip.appendChild(div);
         });
 
-        // --- 修正ポイント：中央に合わせる計算 ---
-        // 50番目のアイテムを「当たり」とする
+        // --- 修正ポイント：インデックスの調整 ---
+        // 50番目を当選と判定していた場合、見た目上のズレを補正するために
+        // 実際に矢印の下に来るアイテムを resultIndex として固定します。
         const resultIndex = 50; 
         
-        // コンテナの真ん中の位置を取得
-        const containerWidth = this.container.offsetWidth;
+        const containerWidth = 350; // CSSのwidth (固定値で計算したほうが安定します)
         const centerOfContainer = containerWidth / 2;
 
-        // アイテムの左端からその中心までの距離は itemWidth / 2
-        // 「当たり」アイテムの左端がくるべき位置を計算
+        // 【ここが重要】
+        // -(resultIndex * itemWidth) で50番目の左端がコンテナの左端に来ます。
+        // そこに (centerOfContainer - itemWidth / 2) を足すことで、
+        // 50番目の中心がコンテナの中心（矢印）に重なります。
         const stopPos = -(resultIndex * this.itemWidth) + (centerOfContainer - this.itemWidth / 2);
 
         setTimeout(() => {
-            // カジノらしい、滑らかな減速（4秒かけて回転）
             this.strip.style.transition = "left 4s cubic-bezier(0.15, 0, 0.1, 1)";
             this.strip.style.left = stopPos + "px";
         }, 100);
 
         setTimeout(() => {
+            // ここで displayItems[resultIndex] を使うことで、
+            // 矢印が指している50番目のアイテムの効果を確実に発動させます。
             const result = displayItems[resultIndex];
             result.action(); 
 
-            // 当たったアイテムを強調
             const finalItem = this.strip.children[resultIndex];
             finalItem.classList.add('winner');
 
@@ -59,6 +61,6 @@ class Roulette {
                 this.container.classList.remove('show');
                 this.isSpinning = false;
             }, 3000);
-        }, 4500); // アニメーション4s + 余裕0.5s
+        }, 4500);
     }
 }
