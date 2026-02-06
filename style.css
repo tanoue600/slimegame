@@ -180,27 +180,28 @@ canvas {
 /* --- センターマーカー (金の針) --- */
 #roulette-marker {
     position: absolute;
-    top: 30px; /* ラベルの下に配置 */
+    top: -10px; /* 上げる場合はこの数値を小さく */
     left: 50%;
     transform: translateX(-50%);
-    width: 0; 
+    width: 0;
     height: 0;
-    /* 背景色は透明にし、境界線で三角形を作る */
-    background: transparent;
     z-index: 1100;
     pointer-events: none;
-    box-shadow: none;
+    /* HTMLの中身（白文字）が見えないように明示的に指定 */
+    color: transparent; 
 }
 
 #roulette-marker::after {
+    /* こちらが本命の「金の矢印」 */
     content: '▼';
     position: absolute;
-    top: -5px; /* 少し上にずらして窓の枠にかぶせる */
+    top: 0;
     left: 50%;
     transform: translateX(-50%);
-    color: #f1c40f;
-    font-size: 28px; /* 少し大きくして視認性アップ */
-    text-shadow: 0 0 15px rgba(255, 215, 0, 0.8), 0 2px 4px rgba(0,0,0,0.5);
+    color: #f1c40f; /* 金色 */
+    font-size: 28px;
+    text-shadow: 0 0 15px rgba(255, 215, 0, 0.8), 0 2px 5px rgba(0,0,0,0.9);
+    visibility: visible;
 }
 
 /* ついでに：文字を見やすくするためにアイテムのパディングを調整 */
